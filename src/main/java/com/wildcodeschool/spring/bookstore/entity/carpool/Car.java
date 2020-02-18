@@ -1,9 +1,14 @@
 package com.wildcodeschool.spring.bookstore.entity.carpool;
 
+import java.util.Set;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+
+import com.wildcodeschool.spring.bookstore.entity.Customer;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,5 +23,8 @@ public class Car {
 	private Long id;
 	
 	private String model;
+	
+	@ManyToMany(mappedBy = "customer_id")
+	private Set<Customer> customer;
 
 }

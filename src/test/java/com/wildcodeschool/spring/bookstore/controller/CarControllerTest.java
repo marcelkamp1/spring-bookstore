@@ -1,9 +1,9 @@
 package com.wildcodeschool.spring.bookstore.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,13 +40,10 @@ class CarControllerTest {
 
 	@Test
 	void shouldReadAllCars() throws Exception {
-		// Given | Arrange
-
-		// When | Act
+		givenACarInTheDatabase("Mazda");
 		MvcResult result = mock.perform(MockMvcRequestBuilders.get("/cars")).andReturn();
-		// Then | Assert
 		List<Car> books = getCarsFromModel(result);
-		assertThat(books).hasSize(0);
+		assertThat(books).hasSize(1);
 	}
 
 	@Test
@@ -90,17 +87,29 @@ class CarControllerTest {
 	@Test
 	void shouldBeAbleToModifyACar() throws Exception {
 		// Given | Arrange
+		Car existingCar = givenACarInTheDatabase("Tesla Model 3");
+		Car modifiedCar = new Car();
+		modifiedCar.setId(existingCar.getId());
+		modifiedCar.setModel("Tesla Model S");
 		// When
+		MvcResult result = mock.perform(MockMvcRequestBuilders.post("/car/upsert")
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED).flashAttr("car", modifiedCar)).andReturn();
 		// Then
-		fail();
+		assertThat(result.getResponse().getStatus()).isEqualTo(302);
+		Optional<Car> results = carRepo.findById(existingCar.getId());
+		assertThat(results).isPresent();
+		assertThat(results.get().getModel()).isEqualTo("Tesla Model S");
 	}
 
 	@Test
 	void shouldBeAbleToDeleteACar() throws Exception {
 		// Given | Arrange
+		Car existingCar = givenACarInTheDatabase("Tesla Model 3");
 		// When
-		// Then
-		fail();
+		MvcResult result = mock.perform(MockMvcRequestBuilders.get("/car/" + existingCar.getId() + "/delete")).andReturn();
+		assertThat(result.getResponse().getStatus()).isEqualTo(302);
+		Optional<Car> results = carRepo.findById(existingCar.getId());
+		assertThat(results).isEmpty();
 	}
 
 	private List<Car> getCarsFromModel(MvcResult result) {

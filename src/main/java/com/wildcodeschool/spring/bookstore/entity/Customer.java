@@ -4,6 +4,7 @@ import static java.util.Collections.singletonList;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,11 +12,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.wildcodeschool.spring.bookstore.entity.carpool.Car;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,16 +41,20 @@ public class Customer implements UserDetails {
 	private String username;
 
 	private String password;
-	
+
 	private String address;
 
 	private String firstName;
 
 	private String lastName;
 
+	@ManyToMany
+	@JoinTable(name = "owner_car", joinColumns = @JoinColumn(name = "customer_id"), inverseJoinColumns = @JoinColumn(name = "car_id"))
+	private Set<Car> customer_id;
+
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
 	private List<Order> orders;
-	
+
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE)
 	private List<Review> reviews;
 
@@ -58,12 +68,12 @@ public class Customer implements UserDetails {
 	public String getUsername() {
 		return username;
 	}
-		
+
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
-	}	
-	
+	}
+
 	@Override
 	public boolean isAccountNonLocked() {
 		return true;
